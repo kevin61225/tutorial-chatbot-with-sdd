@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  chatbot-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - AzureOpenAI__Endpoint=${AZURE_OPENAI_ENDPOINT:-https://your-resource.openai.azure.com/}
+      - AzureOpenAI__ApiKey=${AZURE_OPENAI_API_KEY:-your-api-key-here}
+      - AzureOpenAI__DeploymentName=${AZURE_OPENAI_DEPLOYMENT:-your-deployment-name}
+      - AzureOpenAI__MaxTokens=1000
+      - AzureOpenAI__Temperature=0.7
+      - ChatService__MaxHistoryMessages=50
+      - ChatService__SessionTimeoutMinutes=30
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
