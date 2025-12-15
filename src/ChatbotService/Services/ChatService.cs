@@ -66,7 +66,7 @@ public class ChatService : IChatService
             };
 
             // Add conversation history
-            foreach (var msg in history.TakeLast(10)) // Limit context window
+            foreach (var msg in history.TakeLast(_chatOptions.MaxContextMessages))
             {
                 if (msg.Role == "user")
                     messages.Add(new UserChatMessage(msg.Content));

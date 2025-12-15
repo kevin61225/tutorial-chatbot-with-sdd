@@ -45,7 +45,7 @@ cd src/ChatbotService
 dotnet run
 ```
 
-The API will be available at `http://localhost:5000` (or the port specified in launchSettings.json).
+The API will be available at `http://localhost:5008` (the port is specified in `src/ChatbotService/Properties/launchSettings.json`).
 
 ### With Custom Port
 
@@ -61,7 +61,7 @@ dotnet run --urls "http://localhost:8080"
 Test if the service is running:
 
 ```bash
-curl http://localhost:5000/health
+curl http://localhost:5008/health
 ```
 
 Expected response:
@@ -80,7 +80,7 @@ Expected response:
 Test if the service is ready to accept requests:
 
 ```bash
-curl http://localhost:5000/health/ready
+curl http://localhost:5008/health/ready
 ```
 
 Expected response:
@@ -100,7 +100,7 @@ Expected response:
 **Note**: This requires valid Azure OpenAI credentials configured in appsettings.json or environment variables.
 
 ```bash
-curl -X POST http://localhost:5000/api/chat/message \
+curl -X POST http://localhost:5008/api/chat/message \
   -H "Content-Type: application/json" \
   -d '{
     "message": "Hello, how can I reset my password?",
@@ -127,7 +127,7 @@ Expected response:
 ### 4. Get Chat History
 
 ```bash
-curl http://localhost:5000/api/chat/sessions/test-session-001/history?limit=10
+curl http://localhost:5008/api/chat/sessions/test-session-001/history?limit=10
 ```
 
 Expected response:
@@ -245,7 +245,7 @@ dotnet run
 ### Test Invalid Request (Missing Message)
 
 ```bash
-curl -X POST http://localhost:5000/api/chat/message \
+curl -X POST http://localhost:5008/api/chat/message \
   -H "Content-Type: application/json" \
   -d '{
     "sessionId": "test-session-001"
@@ -264,7 +264,7 @@ Expected response (400 Bad Request):
 ### Test Invalid Request (Missing SessionId)
 
 ```bash
-curl -X POST http://localhost:5000/api/chat/message \
+curl -X POST http://localhost:5008/api/chat/message \
   -H "Content-Type: application/json" \
   -d '{
     "message": "Hello"
@@ -283,7 +283,7 @@ Expected response (400 Bad Request):
 ### Test Non-Existent Session History
 
 ```bash
-curl http://localhost:5000/api/chat/sessions/non-existent-session/history
+curl http://localhost:5008/api/chat/sessions/non-existent-session/history
 ```
 
 Expected response (404 Not Found):
@@ -305,7 +305,7 @@ Expected response (404 Not Found):
 # macOS: Already included
 
 # Test health endpoint (100 requests, 10 concurrent)
-ab -n 100 -c 10 http://localhost:5000/health
+ab -n 100 -c 10 http://localhost:5008/health
 ```
 
 ### Using wrk
@@ -316,7 +316,7 @@ ab -n 100 -c 10 http://localhost:5000/health
 # macOS: brew install wrk
 
 # Test health endpoint for 30 seconds
-wrk -t4 -c100 -d30s http://localhost:5000/health
+wrk -t4 -c100 -d30s http://localhost:5008/health
 ```
 
 ## Troubleshooting

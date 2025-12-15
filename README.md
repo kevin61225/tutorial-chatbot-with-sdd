@@ -112,7 +112,7 @@ This project demonstrates how to build a production-ready chatbot service follow
    dotnet run
    ```
 
-   The API will be available at `http://localhost:5000`
+   The API will be available at `http://localhost:5008` (configured in `src/ChatbotService/Properties/launchSettings.json`)
 
 ### Docker Deployment
 

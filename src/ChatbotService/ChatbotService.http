@@ -1,6 +1,34 @@
 @ChatbotService_HostAddress = http://localhost:5008
 
-GET {{ChatbotService_HostAddress}}/weatherforecast/
+# Health check
+GET {{ChatbotService_HostAddress}}/health
+Accept: application/json
+
+###
+
+# Readiness check
+GET {{ChatbotService_HostAddress}}/health/ready
+Accept: application/json
+
+###
+
+# Send chat message
+POST {{ChatbotService_HostAddress}}/api/chat/message
+Content-Type: application/json
+
+{
+  "message": "Hello, how can I reset my password?",
+  "sessionId": "test-session-001",
+  "context": {
+    "userId": "user-123",
+    "clientType": "web"
+  }
+}
+
+###
+
+# Get chat history
+GET {{ChatbotService_HostAddress}}/api/chat/sessions/test-session-001/history?limit=10
 Accept: application/json
 
 ###

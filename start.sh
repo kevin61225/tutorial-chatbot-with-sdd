@@ -35,13 +35,13 @@ echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo ""
     echo "🚀 Starting the Chatbot Service..."
-    echo "📍 API will be available at: http://localhost:5000"
-    echo "📍 Health check: http://localhost:5000/health"
-    echo "📍 API Docs: http://localhost:5000/swagger (in development mode)"
+    echo "📍 API will be available at: http://localhost:5008"
+    echo "📍 Health check: http://localhost:5008/health"
+    echo "📍 API Docs: http://localhost:5008/openapi/v1.json (in development mode)"
     echo ""
     echo "Press Ctrl+C to stop the service"
     echo ""
     
     cd src/ChatbotService
-    dotnet run --urls "http://localhost:5000"
+    dotnet run
 fi

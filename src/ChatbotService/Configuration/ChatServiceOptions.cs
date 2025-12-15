@@ -16,4 +16,9 @@ public class ChatServiceOptions
     /// Session timeout in minutes
     /// </summary>
     public int SessionTimeoutMinutes { get; set; } = 30;
+
+    /// <summary>
+    /// Maximum number of context messages to include in AI requests
+    /// </summary>
+    public int MaxContextMessages { get; set; } = 10;
 }
