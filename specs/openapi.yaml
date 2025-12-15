@@ -1,0 +1,293 @@
+openapi: 3.0.3
+info:
+  title: Chatbot Service API
+  description: |
+    A chatbot service that provides intelligent responses using Azure OpenAI.
+    This service supports multiple client applications including web applications 
+    and Microsoft Teams apps.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server
+
+tags:
+  - name: chat
+    description: Chat endpoints for interacting with the chatbot
+  - name: health
+    description: Health check endpoints
+
+paths:
+  /api/chat/message:
+    post:
+      tags:
+        - chat
+      summary: Send a message to the chatbot
+      description: |
+        Send a user message to the chatbot and receive an AI-generated response.
+        The chatbot uses Azure OpenAI to process queries against SaaS application documentation.
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              simpleQuestion:
+                summary: Simple question
+                value:
+                  message: "How do I reset my password?"
+                  sessionId: "user-123-session-456"
+              complexQuestion:
+                summary: Complex question
+                value:
+                  message: "What are the differences between the Pro and Enterprise plans?"
+                  sessionId: "user-123-session-456"
+                  context:
+                    userId: "user-123"
+                    clientType: "web"
+      responses:
+        '200':
+          description: Successful response with chatbot reply
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                successfulResponse:
+                  summary: Successful chatbot response
+                  value:
+                    message: "To reset your password, go to Settings > Security > Reset Password."
+                    sessionId: "user-123-session-456"
+                    timestamp: "2023-12-15T10:30:00Z"
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/chat/sessions/{sessionId}/history:
+    get:
+      tags:
+        - chat
+      summary: Get chat history for a session
+      description: Retrieve the conversation history for a specific session
+      operationId: getChatHistory
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          description: The unique session identifier
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of messages to return
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Chat history retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatHistoryResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      tags:
+        - health
+      summary: Health check endpoint
+      description: Returns the health status of the service
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /health/ready:
+    get:
+      tags:
+        - health
+      summary: Readiness check endpoint
+      description: Returns whether the service is ready to accept requests
+      operationId: readinessCheck
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+        - sessionId
+      properties:
+        message:
+          type: string
+          description: The user's message to the chatbot
+          example: "How do I reset my password?"
+          minLength: 1
+          maxLength: 4000
+        sessionId:
+          type: string
+          description: Unique identifier for the chat session
+          example: "user-123-session-456"
+        context:
+          type: object
+          description: Additional context information
+          properties:
+            userId:
+              type: string
+              description: User identifier
+            clientType:
+              type: string
+              description: Type of client application
+              enum: [web, teams, mobile]
+            metadata:
+              type: object
+              additionalProperties: true
+              description: Additional metadata
+
+    ChatResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The chatbot's response message
+          example: "To reset your password, go to Settings > Security > Reset Password."
+        sessionId:
+          type: string
+          description: The session identifier
+          example: "user-123-session-456"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the response was generated
+          example: "2023-12-15T10:30:00Z"
+        metadata:
+          type: object
+          description: Additional response metadata
+          properties:
+            tokensUsed:
+              type: integer
+              description: Number of tokens consumed
+            confidence:
+              type: number
+              format: float
+              description: Confidence score of the response
+
+    ChatHistoryResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          description: The session identifier
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+        totalCount:
+          type: integer
+          description: Total number of messages in the session
+
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+          description: Who sent the message
+        content:
+          type: string
+          description: The message content
+        timestamp:
+          type: string
+          format: date-time
+          description: When the message was sent
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: "InvalidRequest"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "The message field is required"
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded]
+          description: Overall health status
+        services:
+          type: object
+          description: Health status of individual services
+          properties:
+            azureOpenAI:
+              type: string
+              enum: [healthy, unhealthy]
+            database:
+              type: string
+              enum: [healthy, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
